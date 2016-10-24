@@ -22,7 +22,7 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/empty', function (Request $request) {
 
-    Log::Info($request->postid);
+    //Log::Info($request->postid);
     
     return response()->json([
         'success' => true
