@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\VoteService;
+//use App\Http\Controllers\VoteController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -12,22 +13,25 @@ use App\VoteService;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+/*
 Route::get('/user', function (Request $request) {
     error_log('api route');
     return $request->user();
 })->middleware('auth:api');
-
+*/
 //Route::group(['middleware' => 'throttle:1000'], function () {
 
-Route::get('/empty', function (Request $request) {
+//Route::get('/empty', function (Request $request) {
 
     //Log::Info($request->postid);
-    
+    //return "true";
+    /*
     return response()->json([
         'success' => true
-    ]);
-});
+    ]);*/
+//});
+
+//Route::get('/empty', 'VoteController@dummy');
 
 Route::get('/vote-status/{userid}', function ($userid) {
     

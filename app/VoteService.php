@@ -3,10 +3,11 @@
 namespace App;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Redis;
 use Log;
 use Cassandra;
 
-class voteService extends ServiceProvider {
+class VoteService extends ServiceProvider {
 
     public function __construct()
     {
@@ -52,15 +53,44 @@ class voteService extends ServiceProvider {
     }
 
     public function get_vote_counts($postid) {
-        
+
+        try {
+            $cached = Redis::hmget("vote_counts:$postid", 'upvote', 'downvote');
+
+            Log::info($cached);
+
+            if($cached[0] != null && $cached[1] != null) {
+
+                
+                Log::info("fetch from cache");
+                
+                return ['success' => true, 'result' => [
+                    'upvote' => $cached[0] ,
+                    'downvote' => $cached[1]
+                ]];
+            }
+            
+        }catch(\Exception $e) {
+            Log::debug($e);                
+        }
+
+
         $cql = "select sum(downvote) as downvote, sum(upvote) as upvote from post_user where postid = '$postid';";
                 
         $result = $this->execute_cql($cql);
         
         if($result['success']) {
 
-            Log::debug($result['data'][0]);
-             
+            try {
+
+                Redis::hmset("vote_counts:$postid", 'upvote', $result['data'][0]['upvote'], 'downvote', $result['data'][0]['downvote'] );
+                Redis::expire("vote_counts:$postid", 10);
+
+                Log::info("cached: vote_counts:$postid");
+
+            } catch(\Exception $e) {
+                Log::info($e);                
+            }
 
             return ['success' => true, 'result' => [
                 'upvote' => $result['data'][0]['upvote'],
@@ -84,11 +114,13 @@ class voteService extends ServiceProvider {
 
             return ['success' => true, 'data' => $result];
 
-        } catch (Cassandra\Exception $e) {
+        } 
+        
+        catch (Cassandra\Exception $e) {
 
             Log::error("Caught exception: " .get_class($e));
 
-            return json_encode(['success' => false, 'error' => get_class($e) ]);
+            return ['success' => false, 'error' => get_class($e) ];
         }
     }
 }
