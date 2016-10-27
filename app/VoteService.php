@@ -57,12 +57,12 @@ class VoteService extends ServiceProvider {
         try {
             $cached = Redis::hmget("vote_counts:$postid", 'upvote', 'downvote');
 
-            Log::info($cached);
+            //Log::info($cached);
 
             if($cached[0] != null && $cached[1] != null) {
 
                 
-                Log::info("fetch from cache");
+                //Log::info("fetch from cache");
                 
                 return ['success' => true, 'result' => [
                     'upvote' => $cached[0] ,
@@ -86,10 +86,10 @@ class VoteService extends ServiceProvider {
                 Redis::hmset("vote_counts:$postid", 'upvote', $result['data'][0]['upvote'], 'downvote', $result['data'][0]['downvote'] );
                 Redis::expire("vote_counts:$postid", 10);
 
-                Log::info("cached: vote_counts:$postid");
+                //Log::info("cached: vote_counts:$postid");
 
             } catch(\Exception $e) {
-                Log::info($e);                
+                Log::debug($e);                
             }
 
             return ['success' => true, 'result' => [
