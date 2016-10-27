@@ -105,6 +105,8 @@ class VoteService extends ServiceProvider {
     function execute_cql($cql) {
         try {
             $cluster   = Cassandra::cluster()                 // connects to localhost by default
+                        ->withContactPoints('10.164.6.78', '10.165.2.217')
+                        ->withPort(9042)
                         ->build();
             $keyspace  = 'ninegag';
             $session   = $cluster->connect($keyspace);        // create session, optionally scoped to a keyspace
